@@ -1,0 +1,132 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Register from '../Register';
+import { AuthContext } from '../../context/AuthContext';
+
+// Mock react-router-dom hooks and components
+vi.mock('react-router-dom', () => ({
+  useNavigate: vi.fn(),
+  Link: vi.fn().mockImplementation(({ to, children }) => <a href={to}>{children}</a>),
+}));
+
+// Mock React's useContext hook
+vi.mock('react', async () => {
+  const actual = await vi.importActual('react');
+  return {
+    ...actual,
+    useContext: vi.fn(),
+  };
+});
+
+describe('Register Component', () => {
+  const mockRegister = vi.fn();
+  const mockNavigate = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    
+    // Mock AuthContext
+    useContext.mockImplementation((context) => {
+      if (context === AuthContext) {
+        return { register: mockRegister };
+      }
+      return actual.useContext(context);
+    });
+
+    // Mock navigation
+    useNavigate.mockImplementation(() => mockNavigate);
+  });
+
+  it('renders registration form with all fields', () => {
+    render(<Register />);
+    
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument();
+  });
+
+  it('shows password mismatch error', async () => {
+    const user = userEvent.setup();
+    render(<Register />);
+
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.type(screen.getByLabelText(/confirm password/i), 'different');
+    await user.click(screen.getByRole('button', { name: /register/i }));
+
+    expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument();
+    expect(mockRegister).not.toHaveBeenCalled();
+  });
+
+  it('prevents submission with short password', async () => {
+    const user = userEvent.setup();
+    render(<Register />);
+
+    await user.type(screen.getByLabelText(/password/i), 'short');
+    await user.type(screen.getByLabelText(/confirm password/i), 'short');
+    await user.click(screen.getByRole('button', { name: /register/i }));
+
+    expect(await screen.findByText(/must be at least 6 characters/i)).toBeInTheDocument();
+    expect(mockRegister).not.toHaveBeenCalled();
+  });
+
+  it('submits valid form and navigates to profile', async () => {
+    mockRegister.mockResolvedValueOnce();
+    const user = userEvent.setup();
+    render(<Register />);
+
+    await user.type(screen.getByLabelText(/name/i), 'JohnDoe');
+    await user.type(screen.getByLabelText(/email/i), 'john@test.com');
+    await user.type(screen.getByLabelText(/password/i), 'secure123');
+    await user.type(screen.getByLabelText(/confirm password/i), 'secure123');
+    await user.click(screen.getByRole('button', { name: /register/i }));
+
+    await waitFor(() => {
+      expect(mockRegister).toHaveBeenCalledWith({
+        username: 'JohnDoe',
+        email: 'john@test.com',
+        password: 'secure123',
+      });
+      expect(mockNavigate).toHaveBeenCalledWith('/profile');
+    });
+  });
+
+  it('displays registration error message', async () => {
+    const errorMessage = 'Email already exists';
+    mockRegister.mockRejectedValueOnce({ response: { data: { message: errorMessage } } });
+    const user = userEvent.setup();
+    render(<Register />);
+
+    await user.type(screen.getByLabelText(/name/i), 'JohnDoe');
+    await user.type(screen.getByLabelText(/email/i), 'john@test.com');
+    await user.type(screen.getByLabelText(/password/i), 'secure123');
+    await user.type(screen.getByLabelText(/confirm password/i), 'secure123');
+    await user.click(screen.getByRole('button', { name: /register/i }));
+
+    expect(await screen.findByText(errorMessage)).toBeInTheDocument();
+  });
+
+  it('disables button during submission', async () => {
+    mockRegister.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 500)));
+    const user = userEvent.setup();
+    render(<Register />);
+
+    await user.type(screen.getByLabelText(/name/i), 'JohnDoe');
+    await user.type(screen.getByLabelText(/email/i), 'john@test.com');
+    await user.type(screen.getByLabelText(/password/i), 'secure123');
+    await user.type(screen.getByLabelText(/confirm password/i), 'secure123');
+    const submitButton = screen.getByRole('button', { name: /register/i });
+    await user.click(submitButton);
+
+    expect(submitButton).toBeDisabled();
+    expect(submitButton).toHaveTextContent(/registering.../i);
+
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
+  });
+});
