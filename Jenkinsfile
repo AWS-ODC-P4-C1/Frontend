@@ -25,11 +25,7 @@ pipeline {
     }
 
     stage('Build images and Run containers') {
-      when {
-        expression {
-          currentBuild.result == null || currentBuild.result == 'SUCCESS'
-        }
-      }
+ 
       steps {
         sh '''
         cd backend/odc
