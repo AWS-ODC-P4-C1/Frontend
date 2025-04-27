@@ -18,7 +18,6 @@ pipeline {
         sh '''
         cd frontend
         npm install
-        ls -l
         npm run test
         cd ..
         '''
@@ -30,7 +29,8 @@ pipeline {
       steps {
         sh '''
         cd backend/odc
-        docker compose up --build
+        docker compose build
+        docker images
         '''
       }
     }
