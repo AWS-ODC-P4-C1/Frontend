@@ -35,7 +35,8 @@ pipeline {
         docker push madicke12/frontend:latest
 
         # Notify the EC2 server
-        curl -X POST ec2-54-191-62-131.us-west-2.compute.amazonaws.com:5000/webhook
+        curl -X POST -H "Content-Type: application/json" -d '{}' ec2-54-191-62-131.us-west-2.compute.amazonaws.com:5000/webhook
+
         '''
       }
     }
