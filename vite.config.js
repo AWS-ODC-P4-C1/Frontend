@@ -7,5 +7,9 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: resolve(__dirname, 'vitest.setup.js'),
-  }
+  },
+     server: {
+    host: '0.0.0.0', // so it binds to public IP
+    port: 5173,      // or whatever port you're using
+    allowedHosts: ['ec2-34-215-61-170.us-west-2.compute.amazonaws.com']
 });
