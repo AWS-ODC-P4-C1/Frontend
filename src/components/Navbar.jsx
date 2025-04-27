@@ -28,7 +28,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <div className="bg-white text-indigo-600 font-bold rounded-lg h-8 w-8 flex items-center justify-center mr-2">P</div>
-              <span className="text-xl font-bold">Profile App</span>
+              <span className="text-xl font-bold">ProfileApp</span>
             </Link>
           </div>
           
