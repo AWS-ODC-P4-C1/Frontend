@@ -25,15 +25,17 @@ pipeline {
     }
 
     stage('Build images and Run containers') {
- 
       steps {
         sh '''
         cd backend/odc
-        docker compose  build
+        docker compose build
         docker tag backend madicke12/backend:latest
         docker tag frontend madicke12/frontend:latest
         docker push madicke12/backend:latest
         docker push madicke12/frontend:latest
+
+        # Notify the EC2 server
+        curl -X POST ec2-54-191-62-131.us-west-2.compute.amazonaws.com:5000/webhook
         '''
       }
     }
