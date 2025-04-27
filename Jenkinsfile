@@ -18,7 +18,7 @@ pipeline {
         sh '''
         cd frontend
         npm install
-        ls-l
+        ls -l
         npm run test
         cd ..
         '''
