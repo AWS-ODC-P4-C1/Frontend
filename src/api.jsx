@@ -1,7 +1,7 @@
 
 import axios from "axios";
 const axiosInstance = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/",
+    baseURL: "http://ec2-54-191-62-131.us-west-2.compute.amazonaws.com:8000/api/",
 });
 
 export const UseAxios = () => {
