@@ -13,7 +13,6 @@ useEffect(() => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-
   }
 , [storedUser]);
 
