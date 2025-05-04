@@ -46,6 +46,15 @@ pipeline {
         }
       }
     }
+    stage('wait for SonarQube analysis') {
+      steps {
+        script {
+          timeout(time: 2, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+          }
+        }
+      }
+    }
   stage ('SonarQube Analysis for frontend') {
       steps {
         dir('frontend') {
@@ -66,7 +75,7 @@ pipeline {
 
     stage("Quality Gate") {
       steps {
-        timeout(time: 5, unit: 'MINUTES') {
+        timeout(time: 2, unit: 'MINUTES') {
           waitForQualityGate abortPipeline: true
         }
       }
