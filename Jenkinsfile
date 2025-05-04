@@ -26,19 +26,19 @@ pipeline {
           cd frontend
           npm install
           npm run test
-          cd ..
         '''
       }
     }
 
-    stage('SonarQube Analysis') {
+    stage('SonarQube Analysis for backend') {
       steps {
         dir('backend') {
           withSonarQubeEnv("${SONARQUBE_ENV}") {
             sh '''
               sonar-scanner \
-                -Dsonar.projectKey=Frontend-odc \
+                -Dsonar.projectKey=odc-backend \
                 -Dsonar.sources=. \
+                -Dsonar.exclusions=**/migrations/**,**/tests/**,**/static/**,**/templates/**,**/__pycache__/**,manage.py \
                 -Dsonar.host.url=$SONAR_HOST_URL \
                 -Dsonar.login=$SONAR_AUTH_TOKEN
             '''
@@ -46,6 +46,23 @@ pipeline {
         }
       }
     }
+  stage ('SonarQube Analysis for frontend') {
+      steps {
+        dir('frontend') {
+          withSonarQubeEnv("${SONARQUBE_ENV}") {
+            sh '''
+              sonar-scanner \
+                -Dsonar.projectKey=odc-frontend \
+                -Dsonar.sources=. \
+                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/coverage/**,**/__tests__/** \
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_AUTH_TOKEN
+            '''
+          }
+        }
+      }
+    }
+
 
     stage("Quality Gate") {
       steps {
