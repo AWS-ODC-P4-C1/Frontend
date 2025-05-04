@@ -38,7 +38,7 @@ pipeline {
               sonar-scanner \
                 -Dsonar.projectKey=odc-backend \
                 -Dsonar.sources=. \
-                -Dsonar.exclusions=**/migrations/**,**/tests/**,**/static/**,**/templates/**,**/__pycache__/**,manage.py \
+                -Dsonar.exclusions=**/venv/**,**/migrations/**,**/tests/**,**/static/**,**/templates/**,**/__pycache__/**,manage.py \
                 -Dsonar.host.url=$SONAR_HOST_URL \
                 -Dsonar.login=$SONAR_AUTH_TOKEN
             '''
