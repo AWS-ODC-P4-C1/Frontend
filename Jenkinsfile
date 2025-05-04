@@ -37,7 +37,7 @@ pipeline {
           withSonarQubeEnv("${SONARQUBE_ENV}") {
             sh '''
               sonar-scanner \
-                -Dsonar.projectKey=odc-backend \
+                -Dsonar.projectKey=Frontend-odc \
                 -Dsonar.sources=. \
                 -Dsonar.host.url=$SONAR_HOST_URL \
                 -Dsonar.login=$SONAR_AUTH_TOKEN
