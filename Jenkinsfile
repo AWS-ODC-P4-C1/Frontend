@@ -91,7 +91,7 @@ pipeline {
           docker push madicke12/backend:latest
           docker push madicke12/frontend:latest
 
-          curl -X POST -H "Content-Type: application/json" -d '{}' ec2-54-191-62-131.us-west-2.compute.amazonaws.com:5000/webhook
+          #curl -X POST -H "Content-Type: application/json" -d '{}' ec2-54-191-62-131.us-west-2.compute.amazonaws.com:5000/webhook
         '''
       }
     }
