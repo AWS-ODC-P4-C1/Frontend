@@ -30,7 +30,15 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-
+  const fetchUserData = async () => {
+    try {
+      const response = await api.get('/me');
+      setCurrentUser(response.data);
+    } catch (err) {
+      setError('Failed to fetch user data');
+      logout();
+    }
+  };
 
   const register = async (userData) => {
     try {
