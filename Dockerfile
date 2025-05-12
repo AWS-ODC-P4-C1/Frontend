@@ -1,20 +1,26 @@
-# Use the latest LTS version of Node.js
-FROM node:23-alpine
- 
-# Set the working directory inside the container
+# Stage 1: Build the React app
+FROM node:20-alpine AS builder
+
 WORKDIR /app
- 
-# Copy package.json and package-lock.json
+
+# Copy package files first for better caching
 COPY package*.json ./
- 
-# Install dependencies
 RUN npm install
- 
-# Copy the rest of your application files
+
+# Copy all files and build the app
 COPY . .
- 
-# Expose the port your app runs on
-EXPOSE 5173
- 
-# Define the command to run your app
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+RUN npm run build
+
+# Stage 2: Serve the built app with Nginx
+FROM nginx:alpine
+
+# Copy the built app from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy custom nginx configuration (if needed)
+COPY nginx.conf /etc/nginx/conf.d/default.conf 
+
+# Expose port 80 (default for HTTP)
+EXPOSE 80
+
+# Nginx starts automatically, so no CMD needed
